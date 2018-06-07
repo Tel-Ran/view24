@@ -8,7 +8,18 @@ public class Menu {
 		this.items = items;
 	}
 	public void runMenu() {
-		//TODO 
+		int iNumber=0;
+		do {
+			for (int i = 1; i <= items.length; i++) {
+				inputOutput.displayLine(i + ". " + items[i - 1].displayedName());
+			}
+			iNumber = inputOutput.getInteger("Enter item's number", 1, items.length);
+			try {
+				items[iNumber - 1].perform();
+			} catch (Throwable e) {
+				inputOutput.displayLine(e.getMessage());
+			} 
+		} while (!items[iNumber-1].isExit());
 	}
 	
 }

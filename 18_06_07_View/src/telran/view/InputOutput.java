@@ -8,36 +8,65 @@ public interface InputOutput {
 	String getString( String prompt);
 	void display(Object object);
 	default void displayLine(Object obj) {
-		
+		String line=obj.toString()+"\n";
+		display(line);
 	}
 	default <R> R getObject(String prompt,String wrongPrompt, Function<String,R> mapper) {
-		//TODO
+		
 		//endless loop until a  mapper returns object
 		//mapper throws RunTimeException in a case of wrong input
 		//displaying wrongPrompt in a case mapper throws exception
-		return null;
+		do {
+			String str=getString(prompt);
+			try {
+				R res=mapper.apply(str);
+				return res;
+			} catch (Exception e) {
+				displayLine(wrongPrompt);
+			}
+		}while(true);
+		
 	}
 	default String getString(String prompt, Predicate<String> predicate) {
-		//TODO applying getObject for returning a string matching a predicate
-		return null;
+		
+		return getObject(prompt,"string doesn't match the predicate",
+				x->{
+					if(!predicate.test(x))
+						throw new RuntimeException();
+					return x;
+				}) ;
 	}
 	default String getString(String prompt, Set<String> options) {
-		//TODO returning string if it exists in options
-		return null;
+		return getObject(prompt,"wrong option",
+				x->{
+					if(!options.contains(x))
+						throw new RuntimeException();
+					return x;
+				});
 	}
 	default Integer getInteger(String prompt) {
-		//TODO applying getObjecty for returning integer number
-		return 0;
+		return getObject(prompt,"it's not an integer number",Integer::parseInt);
 	}
 	default Integer getInteger(String prompt, Integer minValue,Integer maxValue) {
-		//TODO integer number in a given range [minValue-maxValue]
-		return 0;
+		return getObject(prompt,
+				String.format("it's not an integer in the range [%d-%d]", minValue,maxValue),
+				x->{
+					int number=Integer.parseInt(x);
+					if(number<minValue||number>maxValue)
+						throw new RuntimeException();
+					return number;
+				});
 	}
 
 
 	default Number getNumber(String prompt,Predicate<Number>predicate) {
-		//TODO any number matching a given predicate
-		return 0;
+		return getObject(prompt,"it's not a number matching the predicate",
+				x->{
+					Number number=Double.parseDouble(x);
+					if(!predicate.test(number))
+						throw new RuntimeException();
+					return number;
+				}) ;
 	}
 
 	default LocalDate getDate(String prompt) {
