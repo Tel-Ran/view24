@@ -70,13 +70,21 @@ public interface InputOutput {
 	}
 
 	default LocalDate getDate(String prompt) {
-		//TODO any LocalDate object
-		return null;
+		
+		return getObject(prompt,"it's not a date in format yyyy-MM-dd",
+				LocalDate::parse);
 	}
 	default LocalDate getDate(String prompt,LocalDate from,
 			LocalDate to) {
 		//TODO date in a range [from-to) from - inclusive, to-exclusive
-		return null;
+		return getObject(prompt,String.format("it's not a date in format yyyy-MM-dd "
+				+ "between %s and %s", from.toString(),to.toString()),
+				str->{
+					LocalDate res=LocalDate.parse(str);
+					if (res.isBefore(from)||res.isAfter(to))
+						throw new RuntimeException();
+					return res;
+				});
 	}
 
 }
